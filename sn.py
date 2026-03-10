@@ -8,4 +8,4 @@ class foodSN(squeezenet.SqueezeNet):
         super.forward(x)
 
 if __name__ == "__main__":
-    print("class def of squeezenet")
+    print("class def of squeezenet for Food101")

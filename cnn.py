@@ -28,9 +28,6 @@ class foodNN(nn.Module):
         self.final_layer = nn.Sequential(
         )
 
-
-        )
-
     def forward(self,x):
         return 
 
