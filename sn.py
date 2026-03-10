@@ -1,8 +1,8 @@
 from torchvision.models import squeezenet
 
 class foodSN(squeezenet.SqueezeNet):
-    def __init__(self,num_of_classes):
-        super.__init__(num_classes = num_of_classes)
+    def __init__(self):
+        super.__init__(num_classes = 101)
 
     def forward(self,x):
         super.forward(x)

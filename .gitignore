@@ -7,5 +7,6 @@ wheels/
 *.egg-info
 src/data/train
 src/data/test
+SimonesPlayground.py
 # Virtual environments
 .venv
