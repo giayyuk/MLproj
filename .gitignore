@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
-src/food101/data/food-101
+src/food101/data/train
+src/food101/data/test
 # Virtual environments
 .venv
