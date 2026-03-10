@@ -1,5 +1,6 @@
 import torchvision
 from torchvision import transforms, datasets
+from torch.utils.data import Subset
 
 class Data():
     def __init__(self):
@@ -17,3 +18,6 @@ class Data():
 
     def get_test_data(self):
         return self.test_data
+
+    def get_subset_train_data(self,size):
+        return Subset(self.train_data,range(size))
