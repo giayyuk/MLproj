@@ -1,0 +1,120 @@
+Great choice—the Food101 dataset from torchvision is perfect for a CS Python programming course, as it involves image classification with PyTorch (a key Python ML library). It has 101 food categories, 75,750 training images, and 25,250 test images, ideal for practicing data loading, model training, and evaluation in Python.
+Project Overview
+
+Adapt the general plan to Food101: build a convolutional neural network (CNN) to classify food images. Use PyTorch's built-in dataset loader, a simple CNN or pretrained ResNet, and focus on Python code structure for your report. Target top-1 accuracy around 70-80% with tuning (baseline ~50%).​
+1. Environment Setup
+
+Install PyTorch and torchvision via pip:
+
+bash
+pip install torch torchvision matplotlib
+
+Use Jupyter Notebook or a .py script. Download Food101 automatically with download=True. Structure: data/, models/, notebooks/, results/.
+2. Load and Explore Data
+
+python
+import torch
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+
+transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
+train_data = datasets.Food101(root='./data', split='train', download=True, transform=transform)
+test_data = datasets.Food101(root='./data', split='test', download=True, transform=transform)
+
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
+
+print(f"Classes: {len(train_data.classes)}, Samples: {len(train_data)}")  # 101 classes, 75750 train
+
+Visualize a few batches with matplotlib: show images and labels to confirm loading works.
+3. Define Model and Loss
+
+Start with a simple CNN:
+
+python
+import torch.nn as nn
+
+class SimpleFoodNet(nn.Module):
+    def __init__(self, num_classes=101):
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(3, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2)
+        )
+        self.fc = nn.Sequential(nn.Linear(128 * 27 * 27, 512), nn.ReLU(), nn.Dropout(0.5), nn.Linear(512, num_classes))
+    
+    def forward(self, x):
+        x = self.conv(x)
+        x = x.view(x.size(0), -1)
+        return self.fc(x)
+
+model = SimpleFoodNet()
+
+Use CrossEntropyLoss and Adam optimizer.
+4. Train the Model
+
+python
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model.to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+for epoch in range(10):  # Adjust epochs
+    model.train()
+    running_loss = 0.0
+    for images, labels in train_loader:
+        images, labels = images.to(device), labels.to(device)
+        optimizer.zero_grad()
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.item()
+    print(f"Epoch {epoch+1}, Loss: {running_loss/len(train_loader):.4f}")
+torch.save(model.state_dict(), 'food101_simple.pth')
+
+Add validation split from train_data (e.g., 10%) for early stopping.
+5. Evaluate Model
+
+python
+def evaluate(model, loader):
+    model.eval()
+    correct, total = 0, 0
+    with torch.no_grad():
+        for images, labels in loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    return correct / total
+
+test_acc = evaluate(model, test_loader)
+print(f"Test Accuracy: {test_acc:.4f}")
+
+Compute confusion matrix (use sklearn) and top-5 accuracy for Food101 standard.
+6. Improve and Experiment
+
+    Upgrade to pretrained ResNet: models.resnet50(pretrained=True), replace final layer. Fine-tune with lower LR.
+
+    Augment data: add transforms.RandomHorizontalFlip(), ColorJitter.
+
+    Hyperparam tune: LR, batch size via loops or grid search.
+
+    Track with lists: losses, accuracies; plot with matplotlib.
+
+Model	Top-1 Acc	Params	Notes
+Simple CNN	~60%	5M	Fast baseline
+ResNet50	~80%	24M	Use pretrained ​
+7. Report Structure
+
+    Intro: Food101 description, classification goal.
+
+    Code: Key snippets (loading, model, train loop).
+
+    Results: Plots (loss curve, sample predictions, confusion matrix).
+
+    Discussion: Challenges (noisy train labels), Python learnings, improvements (more epochs/GPU).
+
+This fits a 2-4 week CS project. Run on CPU if no GPU; subsample train_loader (e.g., 10k images) to start fast. Share code/output screenshots in your report!
