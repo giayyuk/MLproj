@@ -1,17 +1,26 @@
+import torch
+import tdqm
+import random
 import sn
-from src.data.load_data import Data
+import numpy as np4
+import src.data.load_data
+from torch.utils.data import DataLoader,random_split
+from torch.nn import CrossEntropyLoss
 
-num_classes_for_Food101: int = 101
-data = Data()
-train_data = data.get_train_data()
-#test_data = data.get_test_data()
+torch.manual_seed(42)
+random.seed(42)
+np.random.seed(42)
+torch.cuda.manual_seed_all(42)
+torch.cuda.memory.set_per_process_memory_fraction(fraction=0.33)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-print(type(train_data[0]))
-print(len(train_data))
-#print(test_data)
+# loss optimizer model
+loss = CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters())
+model = FoodSN()
+
+model = model.fit()
 
 
-#model = FoodSN()
-
-#model.fit(data)
-
+def train(num_epochs, model,data_loader):
+    model.train()
