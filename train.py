@@ -26,7 +26,7 @@ torch.set_num_threads(3)
 
 # Set Dataset Size and Split 
 writer = SummaryWriter()
-size_data_set: int = 1000
+size_data_set: int = 20000
 batch_size: int = 2**5
 train_val_split: list[float] = [0.8,0.2]
 
