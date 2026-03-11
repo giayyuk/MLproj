@@ -35,7 +35,8 @@ optimizer = torch.optim.Adam(model.parameters())
 
 # load data
 data = Data()
-train_data = data.get_train_data()
+size_data_set: int = 1000
+train_data = data.get_subset_train_data(size_data_set)
 
 
 def train(num_epochs, model,data_loader):
@@ -49,7 +50,7 @@ def train(num_epochs, model,data_loader):
             labels = labels.to(device)
             output = model(images)
             loss = loss_fn(output,labels)
-            writer.add_scalar("logs",loss.detach(),epoch)
+            writer.add_scalar("logs",loss.detach(),(epoch*size_data_set) + i)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
