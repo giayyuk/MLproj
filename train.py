@@ -28,7 +28,8 @@ train_val_split: list[float] = [0.8,0.2]
 
 # load data
 data = Data()
-train_data = data.get_subset_train_data(size_data_set)
+train_data = data.get_test_data()
+size_data_set = len(train_data)
 train, val = torch.utils.data.random_split(train_data, train_val_split,torch.Generator().manual_seed(42))
 dl = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=1)
 
@@ -55,7 +56,7 @@ def train(num_epochs, model,data_loader):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        if epoch % 1 == 0:
+        if epoch % 3 == 0:
             losses.append(loss.detach().item())
             epochs.append(epoch)
             writer.add_scalar("loss",loss.detach(),(epoch*train_val_split[0]*size_data_set/batch_size) + i)
