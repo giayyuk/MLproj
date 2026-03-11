@@ -27,18 +27,3 @@ dependencies = [
     "umap-learn>=0.5.11",
 ]
 
-
-# install CPU version of PyTorch; guide to install GPU versions: https://docs.astral.sh/uv/guides/integration/pytorch/
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
-[tool.uv.sources]
-torch = [
-  { index = "pytorch-cpu" },
-]
-torchvision = [
-  { index = "pytorch-cpu" },
-]
-

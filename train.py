@@ -27,7 +27,7 @@ dl = DataLoader(train_data, batch_size=10, shuffle=True, num_workers=1)
 
 # loss optimizer model
 loss_fn = CrossEntropyLoss()
-model = FoodSN()
+model = FoodSN().to(device)
 optimizer = torch.optim.Adam(model.parameters())
 
 # load data

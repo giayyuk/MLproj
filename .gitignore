@@ -8,5 +8,6 @@ wheels/
 src/data/train
 src/data/test
 SimonesPlayground.py
+pyproject.tom;
 # Virtual environments
 .venv
