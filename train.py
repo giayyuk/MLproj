@@ -38,18 +38,12 @@ train, val = torch.utils.data.random_split(train_data, train_val_split,torch.Gen
 dl_train = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=1)
 dl_val   = DataLoader(val, batch_size=batch_size, shuffle=True, num_workers=1)
 
-
-for i in dl:
-    print(i)
-    break
-
 # loss optimizer model
 loss_fn = CrossEntropyLoss()
-acc_fn =  Accuracy(task"multiclass",num_classes=101).to(device) 
+acc_fn =  Accuracy(task="multiclass",num_classes=101).to(device) 
 model = FoodSN().to(device)
 optimizer = torch.optim.Adam(model.parameters())
 
-acc_fn = Accuracy(task="multiclass", num_classes=101).to(device) # send accuracy function to device
 
 def train(num_epochs, model,data_loader):
     model.train()
@@ -58,7 +52,7 @@ def train(num_epochs, model,data_loader):
     print("starting training loop")
     for epoch in tqdm(range(num_epochs)):
         running_corrects = 0
-        for i, (images,labels) in enumerate(data_loader):
+        for i, (images,labels) in enumerate(dl_train):
             images = images.to(device)
             labels = labels.to(device)
             output = model(images)
