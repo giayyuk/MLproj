@@ -1,9 +1,5 @@
 import torch
-<<<<<<< HEAD
 from tqdm import tqdm
-=======
-import tqdm
->>>>>>> adabb41059b721fe2e16aa4cd4fb06822b4ea731
 import random
 from sn import FoodSN
 import numpy as np
@@ -16,10 +12,8 @@ torch.manual_seed(42)
 random.seed(42)
 np.random.seed(42)
 torch.cuda.manual_seed_all(42)
-<<<<<<< HEAD
+
 #torch.cuda.memory.set_per_process_memory_fraction(fraction=0.33)
-=======
->>>>>>> adabb41059b721fe2e16aa4cd4fb06822b4ea731
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 torch.cuda.memory.set_per_process_memory_fraction(fraction=0.33)
 torch.set_num_threads(3)
@@ -35,14 +29,11 @@ dl = DataLoader(train_data, batch_size=10, shuffle=True, num_workers=1)
 loss_fn = CrossEntropyLoss()
 model = FoodSN()
 optimizer = torch.optim.Adam(model.parameters())
-<<<<<<< HEAD
-=======
 
 # load data
 data = Data()
 train_data = data.get_train_data()
 
->>>>>>> adabb41059b721fe2e16aa4cd4fb06822b4ea731
 
 def train(num_epochs, model,data_loader):
     model.train()
@@ -57,7 +48,6 @@ def train(num_epochs, model,data_loader):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-<<<<<<< HEAD
         if epoch % 1 == 0:
             losses.append(loss.detach().cpu().item())
             epochs.append(epoch)
@@ -72,8 +62,4 @@ print(losses)
 fig, ax = plt.subplots()
 ax.plot(epochs,losses)
 plt.savefig("loss_prototype.png")
-=======
-    torch.save(model.state_dict(), "food101_first_training.pth")
-
-train(2, model, train_data)
->>>>>>> adabb41059b721fe2e16aa4cd4fb06822b4ea731
+# torch.save(model.state_dict(), "food101_first_training.pth")
