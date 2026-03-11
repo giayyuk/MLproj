@@ -6,6 +6,7 @@ import numpy as np
 from src.data.load_data import Data
 from torch.utils.data import DataLoader,random_split
 from torch.nn import CrossEntropyLoss
+import matplotlib.pyplot as plt
 
 torch.manual_seed(42)
 random.seed(42)
@@ -16,7 +17,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Load Dataset
 data = Data()
-train_data = data.get_subset_train_data(500)
+train_data = data.get_subset_train_data(100)
 
 # Create Data Loader
 dl = DataLoader(train_data, batch_size=10, shuffle=True, num_workers=1)
@@ -28,6 +29,8 @@ optimizer = torch.optim.Adam(model.parameters())
 
 def train(num_epochs, model,data_loader):
     model.train()
+    losses = []
+    epochs = []
     for epoch in tqdm(range(num_epochs)):
         for i, (images,labels) in enumerate(data_loader):
             images = images.to(device)
@@ -37,5 +40,17 @@ def train(num_epochs, model,data_loader):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+        if epoch % 1 == 0:
+            losses.append(loss.detach().cpu().item())
+            epochs.append(epoch)
+            print(output[0])
+            print(output.shape)
+    return (losses,epochs)
 
-train(10,model,dl)
+
+losses, epochs = train(10,model,dl)
+print(epochs)
+print(losses)
+fig, ax = plt.subplots()
+ax.plot(epochs,losses)
+plt.savefig("loss_prototype.png")

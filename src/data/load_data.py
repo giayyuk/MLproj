@@ -1,6 +1,7 @@
 import torchvision
 from torchvision import transforms, datasets
 from torch.utils.data import Subset
+import torch
 
 class Data():
     def __init__(self):
@@ -20,4 +21,5 @@ class Data():
         return self.test_data
 
     def get_subset_train_data(self,size):
-        return Subset(self.train_data,range(size))
+        random_idx = torch.randperm(len(self.train_data))
+        return Subset(self.train_data,random_idx[0:size])
