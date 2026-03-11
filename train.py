@@ -20,7 +20,7 @@ torch.set_num_threads(3)
 
 # Load Dataset
 data = Data()
-train_data = data.get_subset_train_data(100)
+train_data = data.get_subset_train_data(10000)
 
 # Create Data Loader
 dl = DataLoader(train_data, batch_size=10, shuffle=True, num_workers=1)
