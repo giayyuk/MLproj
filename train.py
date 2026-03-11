@@ -24,11 +24,13 @@ torch.set_num_threads(3)
 writer = SummaryWriter()
 size_data_set: int = 1000
 batch_size: int = 10
+train_val_split: list[float] = [0.8,0.2]
 
 # load data
 data = Data()
 train_data = data.get_subset_train_data(size_data_set)
-dl = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=1)
+train, val = torch.utils.data.random_split(train_data, train_val_split,torch.Generator().manual_seed(42))
+dl = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=1)
 
 # loss optimizer model
 loss_fn = CrossEntropyLoss()
@@ -43,24 +45,28 @@ def train(num_epochs, model,data_loader):
     epochs = []
     print("starting training loop")
     for epoch in tqdm(range(num_epochs)):
+        running_corrects = 0
         for i, (images,labels) in enumerate(data_loader):
             images = images.to(device)
             labels = labels.to(device)
             output = model(images)
             loss = loss_fn(output,labels)
-            writer.add_scalar("logs",loss.detach(),(epoch*size_data_set/batch_size) + i)
+            running_corrects += torch.sum(torch.argmax(output,dim=1) == labels)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
         if epoch % 1 == 0:
             losses.append(loss.detach().item())
             epochs.append(epoch)
-    return (losses,epochs)
+            writer.add_scalar("loss",loss.detach(),(epoch*train_val_split[0]*size_data_set/batch_size) + i)
+            writer.add_scalar("accuracy",running_corrects.double()/len(data_loader.dataset),(epoch*train_val_split[0]*size_data_set/batch_size) + i)
+    return (losses,epochs, running_corrects.double()/len(data_loader.dataset))
 
-losses, epochs = train(10,model,dl)
+losses, epochs, accuracy = train(10,model,dl)
 writer.flush()
 print(epochs)
 print(losses)
+print(accuracy)
 
 fig, ax = plt.subplots()
 ax.plot(epochs,losses)
