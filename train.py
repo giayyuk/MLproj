@@ -20,7 +20,7 @@ torch.cuda.manual_seed_all(42)
 
 # hyperparameter [lr, batchsize, epochs, l1/l1/dropout,optimizer]
 
-#torch.cuda.memory.set_per_process_memory_fraction(fraction=0.33)
+torch.cuda.memory.set_per_process_memory_fraction(fraction=0.33)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 torch.set_num_threads(3)
 
@@ -70,17 +70,16 @@ def train(num_epochs, model,data_loader):
             if i % 8 == 0:
                 losses.append(loss.detach().item())
                 epochs.append(epoch)
-                acc = acc_fn(output, labels.int())
                 writer.add_scalar("loss",loss.detach(),(epoch*train_val_split[0]*size_data_set/batch_size) + i)
-                writer.add_scalar("accuracy",acc,(epoch*train_val_split[0]*size_data_set/batch_size) + i)
 
     
         #validation
         for i, (images,labels) in enumerate(dl_val):
             images = images.to(device)
             labels = labels.to(device)
-            
-            pass
+            if i % 8 == 0:
+                acc = acc_fn(output, labels.int())
+                writer.add_scalar("accuracy",acc,(epoch*train_val_split[0]*size_data_set/batch_size) + i)
     return (losses,epochs, running_corrects.double()/len(data_loader.dataset))
 
 writer.flush()
