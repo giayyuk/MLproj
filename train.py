@@ -20,19 +20,20 @@ torch.cuda.manual_seed_all(42)
 
 # hyperparameter [lr, batchsize, epochs, l1/l1/dropout,optimizer]
 
-torch.cuda.memory.set_per_process_memory_fraction(fraction=0.33)
+torch.cuda.memory.set_per_process_memory_fraction(fraction=0.5)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-torch.set_num_threads(3)
+torch.set_num_threads(10)
 
 # Set Dataset Size and Split 
 writer = SummaryWriter()
 size_data_set: int = 20000
-batch_size: int = 2**5
+batch_size: int = 2**6
 train_val_split: list[float] = [0.8,0.2]
 
 # load data
 data = Data()
-train_data = data.get_subset_train_data(size_data_set)
+# get_train_data() for whole data otherwise get_subset_train_data(size)
+train_data = data.get_train_data() # data.get_subset_train_data(size_data_set)
 size_data_set = len(train_data)
 train, val = torch.utils.data.random_split(train_data, train_val_split,torch.Generator().manual_seed(42))
 dl_train = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=1)
@@ -46,13 +47,13 @@ optimizer = torch.optim.Adam(model.parameters())
 
 
 def train(num_epochs, model,data_loader):
-    model.train()
     losses = []
     epochs = []
-    print("starting training loop")
     for epoch in tqdm(range(num_epochs)):
         running_corrects = 0
-        for i, (images,labels) in enumerate(dl_train):
+        print(f"starting training {epoch=}")
+        for i, (images,labels) in tqdm(enumerate(dl_train)):
+            model.train()
             images = images.to(device)
             labels = labels.to(device)
             output = model(images)
@@ -68,16 +69,20 @@ def train(num_epochs, model,data_loader):
 
     
         #validation
+        print("validation\n")
         for i, (images,labels) in enumerate(dl_val):
             images = images.to(device)
             labels = labels.to(device)
+            model.eval()
+            output = model(images)
             if i % 8 == 0:
                 acc = acc_fn(output, labels.int())
                 writer.add_scalar("accuracy",acc,(epoch*train_val_split[0]*size_data_set/batch_size) + i)
+        print("finished validation")
     return (losses,epochs, running_corrects.double()/len(data_loader.dataset))
 
 writer.flush()
-losses, epochs, accuracy = train(10,model,dl_train)
+losses, epochs, accuracy = train(50,model,dl_train)
 print(epochs)
 print(losses)
 print(accuracy)
