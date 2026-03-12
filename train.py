@@ -42,8 +42,8 @@ dl_val   = DataLoader(val, batch_size=batch_size, shuffle=True, num_workers=1)
 # loss optimizer model
 loss_fn = CrossEntropyLoss()
 acc_fn =  Accuracy(task="multiclass",num_classes=101).to(device) 
-model = FoodSN().to(device)
-optimizer = torch.optim.Adam(model.parameters(),lr=0.1)
+model = FoodSN().model.to(device)
+optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
 
 
 def train(num_epochs, model,data_loader):
@@ -52,14 +52,14 @@ def train(num_epochs, model,data_loader):
     for epoch in tqdm(range(num_epochs)):
         running_corrects = 0
         print(f"starting training {epoch=}")
+        model.train()
         for i, (images,labels) in tqdm(enumerate(dl_train)):
-            model.train()
+            optimizer.zero_grad()
             images = images.to(device)
             labels = labels.to(device)
             output = model(images)
             loss = loss_fn(output,labels)
             running_corrects += torch.sum(torch.argmax(output,dim=1) == labels)
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             if i % 8 == 0:
@@ -69,10 +69,10 @@ def train(num_epochs, model,data_loader):
     
         #validation
         print("validation\n")
+        model.eval()
         for i, (images,labels) in enumerate(dl_val):
             images = images.to(device)
             labels = labels.to(device)
-            model.eval()
             output = model(images)
             if i % 8 == 0:
                 acc = acc_fn(output, labels.int())
@@ -81,8 +81,7 @@ def train(num_epochs, model,data_loader):
     return (losses,epochs,acc_fn(output, labels.int()))
 
 writer.flush()
-losses, epochs, accuracy = train(5,model,dl_train)
-print(epochs)
+losses, epochs, accuracy = train(10,model,dl_train)
 print(losses)
 print(accuracy)
 
