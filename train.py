@@ -26,14 +26,14 @@ torch.set_num_threads(10)
 
 # Set Dataset Size and Split 
 writer = SummaryWriter()
-size_data_set: int = 20000
-batch_size: int = 2**6
+size_data_set: int = 2000
+batch_size: int = 2**5
 train_val_split: list[float] = [0.8,0.2]
 
 # load data
 data = Data()
 # get_train_data() for whole data otherwise get_subset_train_data(size)
-train_data = data.get_train_data() # data.get_subset_train_data(size_data_set)
+train_data = data.get_subset_train_data(size_data_set) # data.get_train_data()
 size_data_set = len(train_data)
 train, val = torch.utils.data.random_split(train_data, train_val_split,torch.Generator().manual_seed(42))
 dl_train = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=1)
@@ -43,7 +43,7 @@ dl_val   = DataLoader(val, batch_size=batch_size, shuffle=True, num_workers=1)
 loss_fn = CrossEntropyLoss()
 acc_fn =  Accuracy(task="multiclass",num_classes=101).to(device) 
 model = FoodSN().to(device)
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(),lr=0.1)
 
 
 def train(num_epochs, model,data_loader):
@@ -66,7 +66,6 @@ def train(num_epochs, model,data_loader):
                 losses.append(loss.detach().item())
                 epochs.append(epoch)
                 writer.add_scalar("loss",loss.detach(),(epoch*train_val_split[0]*size_data_set/batch_size) + i)
-
     
         #validation
         print("validation\n")
@@ -79,10 +78,10 @@ def train(num_epochs, model,data_loader):
                 acc = acc_fn(output, labels.int())
                 writer.add_scalar("accuracy",acc,(epoch*train_val_split[0]*size_data_set/batch_size) + i)
         print("finished validation")
-    return (losses,epochs, running_corrects.double()/len(data_loader.dataset))
+    return (losses,epochs,acc_fn(output, labels.int()))
 
 writer.flush()
-losses, epochs, accuracy = train(50,model,dl_train)
+losses, epochs, accuracy = train(5,model,dl_train)
 print(epochs)
 print(losses)
 print(accuracy)
